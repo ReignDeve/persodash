@@ -1,13 +1,13 @@
 // app/api/public-pool/worker/[address]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_POOL_CLIENT_API = "https://public-pool.io:40557/api/client";
 
 export async function GET(
-  _req: Request,
-  context: { params: { address: string } },
+  _req: NextRequest,
+  { params }: { params: Promise<{ address: string }> },
 ) {
-  const { address } = context.params;
+  const { address } = await params;
 
   if (!address) {
     return NextResponse.json(
