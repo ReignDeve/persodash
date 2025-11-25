@@ -7,6 +7,8 @@ export function middleware(req: NextRequest) {
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/login") ||
+    pathname.startsWith("/api/notifications/daily-summary") ||  
+    pathname.startsWith("/api/monitor/miners") ||   
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/api/health") // falls du sowas hast
