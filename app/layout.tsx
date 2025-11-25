@@ -44,19 +44,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-  <div className="flex h-screen">
-    <Sidebar />
-    <div className="flex flex-col flex-1">
-      <Navbar />
-
-      <main className="container p-5 flex-1">
         {children}
-      </main>
-
-      <footer className="w-full flex items-center justify-center py-3">
-      </footer>
-    </div>
-  </div>
 </Providers>
       </body>
     </html>

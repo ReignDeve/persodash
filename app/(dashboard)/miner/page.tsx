@@ -15,8 +15,8 @@ import {
   Button,
 } from "@heroui/react";
 import { CpuChipIcon } from "@heroicons/react/24/outline";
-import { fetchWorkers, PublicPoolWorker, fetchWorkersWithAlerts } from "../services/publicPoolService";
-import HashrateChart from "../components/hashrateChart";
+import { fetchWorkers, PublicPoolWorker, fetchWorkersWithAlerts } from "../../services/publicPoolService";
+import HashrateChart from "../../components/hashrateChart";
 
 const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
 const MY_WORKER = "d7908ac8";

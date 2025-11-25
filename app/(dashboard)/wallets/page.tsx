@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import PhantomWalletCard from "../components/PhantomWalletCard";
-import BtcWalletCard from "../components/btcWalletCard";
-import CoinbaseCard from "../components/coinbaseCard";
+import PhantomWalletCard from "../../components/PhantomWalletCard";
+import BtcWalletCard from "../../components/btcWalletCard";
+import CoinbaseCard from "../../components/coinbaseCard";
 
 const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
 

@@ -75,15 +75,15 @@ export async function fetchWorkersWithAlerts(
     const inactive = workers.filter((w) => {
       const lastSeen = new Date(w.lastSeen).getTime();
       const minutesSince = (now - lastSeen) / 1000 / 60;
-      return minutesSince > 10 || w.hashRate <= 900000.00;
+      return minutesSince > 10 || w.hashRate <= 400000.00;
     });
 
     for (const w of inactive) {
       await createMinerNotification({
         address,
         workerId: w.sessionId,
-        title: "Miner-Worker inaktiv",
-        message: `Worker ${w.sessionId} ist seit mehr als 10 Minuten inaktiv oder hat 0 H/s.`,
+        title: "Miner-Worker inactive",
+        message: `Worker ${w.sessionId} inactive since ${new Date(w.lastSeen)}.`,
         severity: "warning",
       });
     }
@@ -93,8 +93,8 @@ export async function fetchWorkersWithAlerts(
     // Netz-/API-Fehler → System-Notification
     await createMinerNotification({
       address,
-      title: "Fehler beim Laden der Miner-Daten",
-      message: `Public Pool API konnte nicht erreicht werden: ${(error as Error).message}`,
+      title: "Error while fetching miner data",
+      message: `Public Pool API not reachable or returned invalid data: ${(error as Error).message}`,
       severity: "error",
     });
     throw error;

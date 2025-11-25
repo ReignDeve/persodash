@@ -16,7 +16,7 @@ import {
   ArrowPathIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import { fetchWorkers, PublicPoolWorker } from "./services/publicPoolService";
+import { fetchWorkers, PublicPoolWorker } from "../services/publicPoolService";
 import {
   ResponsiveContainer,
   LineChart,
@@ -164,7 +164,7 @@ export default function Home() {
           <Button
             as={Link}
             href="/miner"
-            variant="flat"
+            variant="shadow"
             color="success"
             startContent={<CpuChipIcon className="size-4" />}
           >
@@ -173,6 +173,7 @@ export default function Home() {
           <Button
             as={Link}
             href="/websites"
+            variant="shadow"
             color="success"
             startContent={<GlobeAltIcon className="size-4" />}
           >
@@ -277,10 +278,10 @@ export default function Home() {
                 </Chip>
               )}
             </div>
-            <div className="text-xs text-emerald-800">
+            <div className="text-xs text-black">
               Main Domain:
               <br />
-              <span className="font-mono font-medium">
+              <span className="font-mono font-medium text-[#04261b]">
                 {mainDomain ?? "No domains configured"}
               </span>
             </div>

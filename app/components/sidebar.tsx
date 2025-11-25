@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 type SidebarItemKey = "dashboard" | "miner" | "websites" | "wallets" | "notifications";
 
@@ -33,11 +34,11 @@ export const Sidebar: React.FC<SidebarProps> = ({activeItem, onChange}) => {
     const pathname = usePathname();
   return (
     <aside className="w-56 h-screen bg-content1 border-r border-default-100 flex flex-col py-4 px-2 gap-2">
-      <div className="px-3 pb-4">
-        <span className="text-sm font-semibold">PersoDash</span>
+      <div className="px-3 pb-4 items-center flex flex-col">
+        <Image src="/logo.svg" alt="Logo" width={80} height={80} />
       </div>
 
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-1 mt-4">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.startsWith(item.href);
