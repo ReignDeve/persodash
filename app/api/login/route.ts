@@ -33,7 +33,6 @@ export async function POST(req: Request) {
       `HttpOnly`,
       `SameSite=Lax`,
       `Max-Age=${60 * 60 * 24 * 7}`, // 7 Tage
-      process.env.NODE_ENV === "production" ? "Secure" : "",
     ]
       .filter(Boolean)
       .join("; ")
