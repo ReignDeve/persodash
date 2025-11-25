@@ -6,9 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "gen:coinbase-jwt": "node scripts/generate-coinbase-jwt.mjs"
   },
   "dependencies": {
+    "@coinbase/cdp-sdk": "^1.38.6",
+    "@coinbase/onchainkit": "^1.1.2",
     "@heroicons/react": "^2.2.0",
     "@heroui/accordion": "2.2.24",
     "@heroui/alert": "2.2.27",
@@ -53,14 +56,16 @@
     "@heroui/user": "2.2.22",
     "@react-aria/ssr": "3.9.10",
     "@react-aria/visually-hidden": "3.8.28",
+    "@solana/web3.js": "^1.98.4",
     "@vercel/sdk": "^1.17.5",
     "clsx": "2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "11.18.2",
     "intl-messageformat": "10.7.16",
     "next": "^16.0.3",
     "next-themes": "0.4.6",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "recharts": "^3.5.0"
   },
   "devDependencies": {

@@ -5,12 +5,14 @@ import {Button} from "@heroui/button";
 import {
   HomeIcon,
   ChartBarIcon,
-  ComputerDesktopIcon
+  ComputerDesktopIcon,
+  WalletIcon,
+  BellIcon
 } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-type SidebarItemKey = "dashboard" | "miner" | "websites";
+type SidebarItemKey = "dashboard" | "miner" | "websites" | "wallets" | "notifications";
 
 interface SidebarProps {
   /** Welches Item ist aktuell aktiv? */
@@ -23,6 +25,8 @@ const items: {key: SidebarItemKey; label: string; href: string; icon: React.Comp
   {key: "dashboard", label: "Dashboard", href: "/", icon: HomeIcon},
   {key: "miner", label: "Miner", href: "/miner", icon: ChartBarIcon},
   {key: "websites", label: "Websites", href: "/websites", icon: ComputerDesktopIcon},
+  { key: "wallets", label: "Wallets", href: "/wallets", icon: WalletIcon },
+  { key: "notifications", label: "Notifications", href: "/notifications", icon: BellIcon }
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({activeItem, onChange}) => {

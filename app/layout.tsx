@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { Link } from "@heroui/link";
+import '@coinbase/onchainkit/styles.css';
 import clsx from "clsx";
 
 import { Providers } from "./providers";

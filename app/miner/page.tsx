@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -15,7 +15,7 @@ import {
   Button,
 } from "@heroui/react";
 import { CpuChipIcon } from "@heroicons/react/24/outline";
-import { fetchWorkers, PublicPoolWorker } from "../services/publicPoolService";
+import { fetchWorkers, PublicPoolWorker, fetchWorkersWithAlerts } from "../services/publicPoolService";
 import HashrateChart from "../components/hashrateChart";
 
 const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
@@ -40,29 +40,35 @@ const formatDateTime = (value: string) => {
 };
 
 export default function MinerPage() {
-  const [workers, setWorkers] = React.useState<PublicPoolWorker[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [workers, setWorkers] = useState<PublicPoolWorker[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // für den Dialog
   const [selectedWorker, setSelectedWorker] =
-    React.useState<PublicPoolWorker | null>(null);
+    useState<PublicPoolWorker | null>(null);
   const [isWorkerModalOpen, setIsWorkerModalOpen] =
-    React.useState(false);
+    useState(false);
 
-  React.useEffect(() => {
-    const load = async () => {
-      const ws = await fetchWorkers(BTC_ADDRESS);
+  useEffect(() => {
+  const load = async () => {
+    try {
+      const ws = await fetchWorkersWithAlerts(BTC_ADDRESS);
 
       // meinen Worker nach vorne
       const mine = ws.find((w) => w.sessionId === MY_WORKER);
       const others = ws.filter((w) => w.sessionId !== MY_WORKER);
 
       setWorkers(mine ? [mine, ...others] : ws);
+    } catch (e) {
+      console.error("Fehler beim Laden der Worker:", e);
+      // optional: extra UI-Fehlerstate setzen
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
-    load();
-  }, []);
+  load();
+}, []);
 
   const openWorkerDetails = (worker: PublicPoolWorker) => {
     setSelectedWorker(worker);
