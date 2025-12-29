@@ -1,14 +1,21 @@
 "use client";
 
-import React from "react";
-import { Card, CardHeader, CardBody, Button, Chip, Spinner } from "@heroui/react";
+import React, { useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Button,
+  Chip,
+  Spinner,
+} from "@heroui/react";
 import { WalletIcon } from "@heroicons/react/24/outline";
 import { connectPhantomWallet } from "../services/phantomWalletService";
 
 export default function PhantomWalletCard() {
-  const [address, setAddress] = React.useState<string | null>(null);
-  const [balance, setBalance] = React.useState<number | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchBalance = async (addr: string) => {
     const res = await fetch(`/api/solana/balance?address=${addr}`);
@@ -33,8 +40,7 @@ export default function PhantomWalletCard() {
     }
   };
 
-  const shortAddress =
-    address && `${address.slice(0, 6)}…${address.slice(-6)}`;
+  const shortAddress = address && `${address.slice(0, 6)}…${address.slice(-6)}`;
 
   return (
     <Card className="w-full max-w-xl">

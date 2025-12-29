@@ -27,6 +27,8 @@ import {
   CartesianGrid,
 } from "recharts";
 
+// TODO (important): Clean up and modularize this huge file!
+
 type WebsiteStatus = "online" | "offline" | "building" | "unknown";
 
 type Website = {
@@ -39,12 +41,13 @@ type Website = {
   domains?: string[];
 };
 
-const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
-const MY_WORKER = "d7908ac8";
+const BTC_ADDRESS = process.env.BTC_ADDRESS || "";
+const MY_WORKER = process.env.WORKER || "";
 
 const formatHashrate = (value: number): string => {
   if (!value || value <= 0) return "0 H/s";
-  if (value > 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + " GH/s";
+  if (value > 1_000_000_000)
+    return (value / 1_000_000_000).toFixed(2) + " GH/s";
   if (value > 1_000_000) return (value / 1_000_000).toFixed(2) + " MH/s";
   if (value > 1_000) return (value / 1_000).toFixed(2) + " kH/s";
   return value.toFixed(0) + " H/s";
@@ -104,7 +107,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="flex justify-center mt-10">
-        <Spinner label="Dashboard lädt..." />
+        <Spinner label="Dashboard loading..." />
       </div>
     );
   }
@@ -124,27 +127,24 @@ export default function Home() {
   const websiteCount = websites.length;
   const onlineCount = websites.filter((w) => w.status === "online").length;
   const offlineCount = websites.filter((w) => w.status === "offline").length;
-  const buildingCount = websites.filter(
-    (w) => w.status === "building",
-  ).length;
+  const buildingCount = websites.filter((w) => w.status === "building").length;
 
-  const latestDeploy = websites
-    .map((w) => w.lastDeploy)
-    .filter(Boolean)
-    .sort((a, b) => (a! < b! ? 1 : -1))[0] ?? null;
+  const latestDeploy =
+    websites
+      .map((w) => w.lastDeploy)
+      .filter(Boolean)
+      .sort((a, b) => (a! < b! ? 1 : -1))[0] ?? null;
 
   const mainDomain = websites[0]?.domains?.[0] ?? null;
 
-  // ---- Fake-Hashrate-Trend auf Basis der echten Gesamt-Hashrate ----
+  // --- fake data for demonstration purposes only; based on real totalHashrateH ---
   const hashrateTrendData =
     totalHashrateH <= 0
       ? []
       : Array.from({ length: 6 }).map((_, i) => {
           const now = Date.now();
-          const t = new Date(
-            now - (5 - i) * 60 * 60 * 1000
-          ).toISOString();
-          const jitterFactor = 0.9 + Math.random() * 0.2; // kleine Variation
+          const t = new Date(now - (5 - i) * 60 * 60 * 1000).toISOString();
+          const jitterFactor = 0.9 + Math.random() * 0.2; // small random variation
           return {
             timestamp: t,
             value: totalHashrateH * jitterFactor,
@@ -192,7 +192,7 @@ export default function Home() {
           gap-4
         "
       >
-        {/* 1: Große Mining-Card */}
+        {/* 1: Big Mining-Card */}
         <Card
           className="
             lg:col-span-7
@@ -202,9 +202,7 @@ export default function Home() {
         >
           <CardHeader className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-white">
-                Total Hashrate
-              </p>
+              <p className="text-xs font-medium text-white">Total Hashrate</p>
               <p className="text-3xl font-semibold text-white">
                 {formatHashrate(totalHashrateH)}
               </p>
@@ -300,14 +298,12 @@ export default function Home() {
         >
           <CardHeader className="flex items-center justify-between">
             <span className="text-sm font-semibold">Hashrate Trend</span>
-            <span className="text-[11px] text-emerald-200">
-              letzte Stunden
-            </span>
+            <span className="text-[11px] text-emerald-200">last Hour</span>
           </CardHeader>
           <CardBody className="h-full">
             {hashrateTrendData.length === 0 ? (
               <div className="flex justify-center items-center h-full text-xs text-emerald-200">
-                Keine Daten für Trend verfügbar.
+                No hashrate data available.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -336,9 +332,7 @@ export default function Home() {
                       border: "1px solid #065f46",
                     }}
                     labelFormatter={(v) => formatTimeShort(v as string)}
-                    formatter={(value: any) =>
-                      formatHashrate(value as number)
-                    }
+                    formatter={(value: any) => formatHashrate(value as number)}
                   />
                   <Line
                     type="monotone"
@@ -362,7 +356,7 @@ export default function Home() {
                 <CpuChipIcon className="size-7 text-emerald-600" />
                 <div>
                   <p className="text-sm font-semibold text-black">
-                    Haupt-Worker
+                    Main-Worker
                   </p>
                   <p className="text-xs text-black/50">
                     Address: {BTC_ADDRESS.slice(0, 8)}…{BTC_ADDRESS.slice(-6)}
@@ -385,9 +379,7 @@ export default function Home() {
                 <>
                   <div className="flex justify-between">
                     <span className="text-black">Session ID</span>
-                    <span className="font-mono">
-                      {mainWorker.sessionId}
-                    </span>
+                    <span className="font-mono">{mainWorker.sessionId}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-black">Hashrate</span>
@@ -403,9 +395,7 @@ export default function Home() {
                   </div>
                 </>
               ) : (
-                <p className="text-default-500">
-                  Keine Worker-Daten verfügbar.
-                </p>
+                <p className="text-default-500">No worker-data available</p>
               )}
             </CardBody>
           </Card>
@@ -415,27 +405,18 @@ export default function Home() {
         <Card className="rounded-2xl lg:col-span-3 shadow-md">
           <CardHeader className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-black">
-                Deployments
-              </p>
+              <p className="text-sm font-semibold text-black">Deployments</p>
               <p className="text-xs text-black/50">
                 Last changes to my projects
               </p>
             </div>
-            <Button
-              size="sm"
-              isIconOnly
-              variant="light"
-              className="min-w-0"
-            >
+            <Button size="sm" isIconOnly variant="light" className="min-w-0">
               <PlusIcon className="size-4 text-emerald-700" />
             </Button>
           </CardHeader>
           <CardBody className="flex flex-col gap-3">
             {websites.length === 0 ? (
-              <p className="text-xs text-default-500">
-                Keine Projekte von der Vercel API gefunden.
-              </p>
+              <p className="text-xs text-default-500">No projects found</p>
             ) : (
               websites
                 .slice()
@@ -468,10 +449,10 @@ export default function Home() {
                         site.status === "online"
                           ? "success"
                           : site.status === "offline"
-                          ? "danger"
-                          : site.status === "building"
-                          ? "warning"
-                          : "default"
+                            ? "danger"
+                            : site.status === "building"
+                              ? "warning"
+                              : "default"
                       }
                     >
                       {site.status}
@@ -509,9 +490,7 @@ export default function Home() {
         {/* Notes */}
         <Card className="lg:col-span-6 rounded-2xl shadow-md ">
           <CardHeader>
-            <span className="text-sm font-semibold text-black">
-              Notes
-            </span>
+            <span className="text-sm font-semibold text-black">Notes</span>
           </CardHeader>
           <CardBody className="text-xs text-emerald-800">
             <p></p>

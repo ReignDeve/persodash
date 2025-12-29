@@ -6,10 +6,8 @@ import * as React from "react";
 import { HeroUIProvider } from "@heroui/system";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-
-// ⬇️ neu: OnchainKit
 import { OnchainKitProvider } from "@coinbase/onchainkit";
-import { base } from "viem/chains"; // oder mainnet, je nachdem was du willst
+import { base } from "viem/chains";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -28,16 +26,16 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-     <HeroUIProvider navigate={router.push}>
+    <HeroUIProvider navigate={router.push}>
       <OnchainKitProvider
         apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
         chain={base}
         config={{
           appearance: {
-            mode: "auto", // passt sich deinem Theme an
+            mode: "auto",
           },
           wallet: {
-            display: "modal", // Wallet-UI als Modal
+            display: "modal",
           },
         }}
       >

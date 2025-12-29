@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
   try {
     const res = await fetch(`${BLOCKSTREAM_BASE}/address/${address}`, {
-      // darf ruhig gecached werden
+      // allow caching for 60 seconds
       next: { revalidate: 60 },
     });
 
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
     const data = await res.json();
 
-    // laut Blockstream-API:
+    // based on Blockstream-API:
     // chain_stats.funded_txo_sum / spent_txo_sum (on-chain)
     // mempool_stats.* (mempool)
     const funded =

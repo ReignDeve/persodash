@@ -27,7 +27,7 @@ export async function GET() {
   }
 
   try {
-    // 1) Projekte holen
+    // 1) get all projects
     const projectsUrl = new URL("/v10/projects", VERCEL_API_BASE);
     projectsUrl.searchParams.set("limit", "100");
     if (teamId) {
@@ -53,12 +53,12 @@ export async function GET() {
     const projectsData = await projectsRes.json();
     const projects: any[] = projectsData.projects ?? [];
 
-    // 2) Für jedes Projekt: letzter Production-Deployment + Domains
+    // 2) For each project: last production deployment + domains
     const websites: WebsiteSummary[] = await Promise.all(
       projects.map(async (project) => {
         const projectId = project.id as string;
 
-        // --- Deployments (für Status & lastDeploy & App-URL) ---
+        // --- Deployments (for status & lastDeploy & app URL) ---
         const deploymentsUrl = new URL("/v6/deployments", VERCEL_API_BASE);
         deploymentsUrl.searchParams.set("projectId", projectId);
         deploymentsUrl.searchParams.set("limit", "1");
@@ -116,7 +116,7 @@ export async function GET() {
           console.error("Deployment fetch error", e);
         }
 
-        // --- Domains für das Projekt ---
+        // --- Domains for project ---
         const domainsUrl = new URL(
           `/v9/projects/${projectId}/domains`,
           VERCEL_API_BASE
@@ -136,9 +136,7 @@ export async function GET() {
             const domData = await domRes.json();
             domains = domData.domains?.map((d: any) => d.name) ?? [];
           } else {
-            console.warn(
-              `Failed to fetch domains for project ${projectId}`
-            );
+            console.warn(`Failed to fetch domains for project ${projectId}`);
           }
         } catch (e) {
           console.error("Domain fetch error", e);

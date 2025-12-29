@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
-import { fetchWorkers, PublicPoolWorker } from "@/app/services/publicPoolService";
+import {
+  fetchWorkers,
+  PublicPoolWorker,
+} from "@/app/services/publicPoolService";
 import { sendTelegramMessage } from "@/app/services/telegramService";
 import { addNotification } from "../../../services/notificationService";
+import { AlertInfo, AlertSeverity } from "@/types/alert";
 
-const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
-const HASHRATE_THRESHOLD = 1_000_000;
+const BTC_ADDRESS = process.env.BTC_ADDRESS || "";
+const HASHRATE_THRESHOLD = 1_000_000; // should be configurable in the future through user settings or config file
 const INACTIVE_MINUTES = 10;
-
-type AlertSeverity = "warning" | "error";
-
-type AlertInfo = {
-  worker: PublicPoolWorker;
-  reasons: string[];
-  severity: AlertSeverity;
-};
 
 function addAlertReason(
   map: Map<string, AlertInfo>,
@@ -41,7 +37,7 @@ export async function GET() {
 
     const alertsByWorker = new Map<string, AlertInfo>();
 
-    // 🔍 Regel 1: Worker inaktiv
+    // Rule 1: Worker inaktiv
     for (const w of workers) {
       const last = new Date(w.lastSeen).getTime();
       const minutesSince = (now - last) / 1000 / 60;
@@ -50,31 +46,26 @@ export async function GET() {
         addAlertReason(
           alertsByWorker,
           w,
-          `Inaktiv seit ${minutesSince.toFixed(1)} Minuten.`,
+          `Inaktiv since ${minutesSince.toFixed(1)} minutes.`,
           "warning"
         );
       }
     }
 
-    // 🔍 Regel 2: Hashrate 0
+    // Rule 2: Hashrate 0
     for (const w of workers) {
       if (w.hashRate === 0) {
-        addAlertReason(
-          alertsByWorker,
-          w,
-          `Hashrate ist 0 H/s.`,
-          "error"
-        );
+        addAlertReason(alertsByWorker, w, `Hashrate is 0 H/s.`, "error");
       }
     }
 
-    // 🔍 Regel 3: Hashrate < Threshold
+    // Rule 3: Hashrate < Threshold
     for (const w of workers) {
       if (w.hashRate > 0 && w.hashRate < HASHRATE_THRESHOLD) {
         addAlertReason(
           alertsByWorker,
           w,
-          `Hashrate nur ${w.hashRate.toFixed(2)} H/s (Threshold: ${HASHRATE_THRESHOLD})`,
+          `Hashrate only ${w.hashRate.toFixed(2)} H/s (Threshold: ${HASHRATE_THRESHOLD})`,
           "warning"
         );
       }
@@ -86,7 +77,7 @@ export async function GET() {
       const { worker, reasons, severity } = alert;
 
       const title =
-        severity === "error" ? "Miner-Worker PROBLEM" : "Miner-Worker Warnung";
+        severity === "error" ? "Miner-Worker PROBLEM" : "Miner-Worker Warning";
 
       const msg = [
         `*${title}*`,
@@ -94,10 +85,10 @@ export async function GET() {
         `Worker: ${worker.sessionId}`,
         `Hashrate: ${worker.hashRate.toFixed(2)} H/s`,
         ``,
-        `Gründe:`,
+        `Reasons:`,
         ...reasons.map((r) => `- ${r}`),
         ``,
-        `Zeit: ${new Date().toLocaleString("de-DE")}`,
+        `Time: ${new Date().toLocaleString("de-DE")}`,
       ].join("\n");
 
       await sendTelegramMessage(msg);
@@ -117,7 +108,7 @@ export async function GET() {
       alertsSent: alerts.length,
     });
   } catch (e) {
-    const text = `*Miner Monitor Fehler*\n\nPublic Pool API nicht erreichbar: ${(e as Error).message}`;
+    const text = `*Miner monitor error*\n\nPublic Pool API not reachable: ${(e as Error).message}`;
 
     await sendTelegramMessage(text);
 
@@ -125,13 +116,10 @@ export async function GET() {
       type: "miner",
       source: `miner:${BTC_ADDRESS}`,
       severity: "error",
-      title: "Miner Monitor Fehler",
+      title: "Miner Monitor Error",
       message: text,
     });
 
-    return NextResponse.json(
-      { error: "monitor failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "monitor failed" }, { status: 500 });
   }
 }

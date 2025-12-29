@@ -1,42 +1,15 @@
 "use client";
 
-import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Chip,
-  Spinner,
-} from "@heroui/react";
-
-type Notification = {
-  id: string;
-  type: "website" | "miner" | "wallet" | "system";
-  source: string;
-  severity: "info" | "warning" | "error";
-  title: string;
-  message: string;
-  createdAt: string;
-};
-
-function severityColor(s: Notification["severity"]) {
-  switch (s) {
-    case "info":
-      return "primary";
-    case "warning":
-      return "warning";
-    case "error":
-      return "danger";
-    default:
-      return "default";
-  }
-}
+import React, { useEffect, useState } from "react";
+import { Notification } from "../../../types/notifications";
+import { severityColor } from "../../../types/notifications";
+import { Card, CardHeader, CardBody, Chip, Spinner } from "@heroui/react";
 
 export default function NotificationsPage() {
-  const [items, setItems] = React.useState<Notification[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [items, setItems] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const load = async () => {
       try {
         const res = await fetch("/api/notifications");
@@ -62,9 +35,7 @@ export default function NotificationsPage() {
       <h1 className="text-2xl font-semibold mb-2">Notifications</h1>
 
       {items.length === 0 && (
-        <p className="text-sm text-default-500">
-          Noch keine Notifications vorhanden.
-        </p>
+        <p className="text-sm text-default-500">No notifications available.</p>
       )}
 
       {items.map((n) => (

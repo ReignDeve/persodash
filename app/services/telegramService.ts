@@ -1,11 +1,11 @@
 // app/services/telegramService.ts
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID; // deine eigene Chat-ID
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID; // your chat ID here
 
 export async function sendTelegramMessage(text: string): Promise<void> {
   if (!BOT_TOKEN || !CHAT_ID) {
-    console.warn("Telegram nicht konfiguriert (BOT_TOKEN/CHAT_ID fehlen)");
+    console.warn("Telegram BOT_TOKEN or CHAT_ID is not set");
     return;
   }
 

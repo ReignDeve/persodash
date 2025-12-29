@@ -3,7 +3,10 @@
 import React from "react";
 import { Card, CardHeader, CardBody, Chip, Spinner } from "@heroui/react";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
-import type { CoinbaseAccount, CoinbaseAccountsResponse } from "../../types/coinbase";
+import type {
+  CoinbaseAccount,
+  CoinbaseAccountsResponse,
+} from "../../types/coinbase";
 
 function formatAmount(amount: string) {
   const num = Number(amount);
@@ -26,7 +29,7 @@ export default function CoinbaseCard() {
         const json = await res.json();
 
         if (!res.ok) {
-          setError(json?.error || "Unbekannter Fehler");
+          setError(json?.error || "Unkown error");
           return;
         }
 
@@ -34,15 +37,13 @@ export default function CoinbaseCard() {
 
         // Nur Wallet-Accounts mit Balance
         const wallets = data.data.filter(
-          (a) =>
-            a.type === "wallet" &&
-            Number(a.balance?.amount || 0) > 0
+          (a) => a.type === "wallet" && Number(a.balance?.amount || 0) > 0
         );
 
         setAccounts(wallets);
       } catch (e) {
         console.error(e);
-        setError("Konnte Coinbase Accounts nicht laden");
+        setError("Coinbase data could not be loaded");
       } finally {
         setLoading(false);
       }
@@ -56,7 +57,7 @@ export default function CoinbaseCard() {
       <Card className="w-full max-w-md">
         <CardBody className="flex items-center gap-3">
           <Spinner size="sm" />
-          <span>Lade Coinbase-Daten…</span>
+          <span>Loading Coinbase data…</span>
         </CardBody>
       </Card>
     );
@@ -82,7 +83,7 @@ export default function CoinbaseCard() {
           <div>
             <p className="font-semibold text-sm">Coinbase</p>
             <p className="text-[11px] text-default-500">
-              Keine Assets mit Balance gefunden
+              No crypto assets found
             </p>
           </div>
         </CardHeader>

@@ -15,11 +15,15 @@ import {
   Button,
 } from "@heroui/react";
 import { CpuChipIcon } from "@heroicons/react/24/outline";
-import { fetchWorkers, PublicPoolWorker, fetchWorkersWithAlerts } from "../../services/publicPoolService";
+import {
+  fetchWorkers,
+  PublicPoolWorker,
+  fetchWorkersWithAlerts,
+} from "../../services/publicPoolService";
 import HashrateChart from "../../components/hashrateChart";
 
-const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
-const MY_WORKER = "d7908ac8";
+const BTC_ADDRESS = process.env.BTC_ADDRESS || "";
+const MY_WORKER = process.env.WORKER || "";
 
 type HashratePoint = {
   timestamp: string;
@@ -27,7 +31,7 @@ type HashratePoint = {
   hash2h: number;
 };
 
-// kleine Helper-Funktion nur für diese Seite
+// small helper to format date/time in DE format for this page
 const formatDateTime = (value: string) => {
   const d = new Date(value);
   return d.toLocaleString("de-DE", {
@@ -43,32 +47,32 @@ export default function MinerPage() {
   const [workers, setWorkers] = useState<PublicPoolWorker[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // für den Dialog
-  const [selectedWorker, setSelectedWorker] =
-    useState<PublicPoolWorker | null>(null);
-  const [isWorkerModalOpen, setIsWorkerModalOpen] =
-    useState(false);
+  // for the Worker Detail Modal
+  const [selectedWorker, setSelectedWorker] = useState<PublicPoolWorker | null>(
+    null
+  );
+  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
 
   useEffect(() => {
-  const load = async () => {
-    try {
-      const ws = await fetchWorkersWithAlerts(BTC_ADDRESS);
+    const load = async () => {
+      try {
+        const ws = await fetchWorkersWithAlerts(BTC_ADDRESS);
 
-      // meinen Worker nach vorne
-      const mine = ws.find((w) => w.sessionId === MY_WORKER);
-      const others = ws.filter((w) => w.sessionId !== MY_WORKER);
+        // own worker first
+        const mine = ws.find((w) => w.sessionId === MY_WORKER);
+        const others = ws.filter((w) => w.sessionId !== MY_WORKER);
 
-      setWorkers(mine ? [mine, ...others] : ws);
-    } catch (e) {
-      console.error("Fehler beim Laden der Worker:", e);
-      // optional: extra UI-Fehlerstate setzen
-    } finally {
-      setLoading(false);
-    }
-  };
+        setWorkers(mine ? [mine, ...others] : ws);
+      } catch (e) {
+        console.error("Fehler beim Laden der Worker:", e);
+        // optional TODO: set error state
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  load();
-}, []);
+    load();
+  }, []);
 
   const openWorkerDetails = (worker: PublicPoolWorker) => {
     setSelectedWorker(worker);
@@ -83,10 +87,9 @@ export default function MinerPage() {
     );
   }
 
-  // Echt: aktuelle Hashrate → verwendbar für Chart
+  // current Hashrate -> usable for chart
   const totalH = workers.reduce((sum, w) => sum + w.hashRate, 0);
-
-  // Fake Verlauf basierend auf echtem Wert (bis History verfügbar ist)
+  // fake data points for hashrate chart till real history is available
   const chartData: HashratePoint[] = [
     {
       timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
@@ -150,7 +153,7 @@ export default function MinerPage() {
       {/* Hashrate Chart */}
       <HashrateChart data={chartData} />
 
-      {/* Worker Detail Dialog */}
+      {/* Worker Detail Modal */}
       <Modal
         isOpen={isWorkerModalOpen}
         onOpenChange={(open) => {
@@ -189,7 +192,7 @@ export default function MinerPage() {
                     </div>
                     <div>
                       <p className="text-xs text-default-500">
-                        Beste Difficulty
+                        Best Difficulty
                       </p>
                       <p className="text-sm font-semibold">
                         {selectedWorker.bestDifficulty.toFixed(2)}
@@ -198,32 +201,28 @@ export default function MinerPage() {
                   </div>
 
                   <div>
-                    <p className="text-xs text-default-500">Startzeit</p>
+                    <p className="text-xs text-default-500">Starttime</p>
                     <p className="text-sm">
                       {formatDateTime(selectedWorker.startTime)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-default-500">
-                      Zuletzt gesehen
-                    </p>
+                    <p className="text-xs text-default-500">Last Seen</p>
                     <p className="text-sm">
                       {formatDateTime(selectedWorker.lastSeen)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-default-500">
-                      Uptime (ungefähr)
-                    </p>
+                    <p className="text-xs text-default-500">Uptime (approx.)</p>
                     <p className="text-sm">
                       {(() => {
                         const start = new Date(
-                          selectedWorker.startTime,
+                          selectedWorker.startTime
                         ).getTime();
                         const last = new Date(
-                          selectedWorker.lastSeen,
+                          selectedWorker.lastSeen
                         ).getTime();
                         const diffMs = Math.max(0, last - start);
                         const diffH = diffMs / (1000 * 60 * 60);
@@ -236,7 +235,7 @@ export default function MinerPage() {
                 </ModalBody>
                 <ModalFooter>
                   <Button variant="light" onPress={onClose}>
-                    Schließen
+                    Close
                   </Button>
                 </ModalFooter>
               </>

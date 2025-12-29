@@ -5,7 +5,9 @@ export type PhantomProvider = {
   isPhantom?: boolean;
   publicKey?: PublicKey;
   isConnected?: boolean;
-  connect: (opts?: { onlyIfTrusted?: boolean }) => Promise<{ publicKey: PublicKey }>;
+  connect: (opts?: {
+    onlyIfTrusted?: boolean;
+  }) => Promise<{ publicKey: PublicKey }>;
   disconnect: () => Promise<void>;
 };
 
@@ -25,7 +27,9 @@ export function getPhantomProvider(): PhantomProvider | null {
 export async function connectPhantomWallet(): Promise<string | null> {
   const provider = getPhantomProvider();
   if (!provider) {
-    alert("Phantom Wallet nicht gefunden. Bitte die Extension installieren.");
+    alert(
+      "Phantom Wallet not found. Please install it from https://phantom.app/"
+    );
     return null;
   }
 

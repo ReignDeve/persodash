@@ -14,7 +14,7 @@ export async function GET() {
   }
 
   try {
-    // 1) JWT für diesen Request erzeugen
+    // 1) Generate JWT
     const jwt = await generateJwt({
       apiKeyId,
       apiKeySecret,
@@ -24,7 +24,7 @@ export async function GET() {
       // expiresIn: 120, // optional
     });
 
-    // 2) Coinbase Track API callen
+    // 2) Call /v2/accounts endpoint with JWT in Authorization header (Coinbase Track API)
     const res = await fetch("https://api.coinbase.com/v2/accounts", {
       headers: {
         Authorization: `Bearer ${jwt}`,

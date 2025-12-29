@@ -1,26 +1,30 @@
 // app/api/notifications/daily-summary/route.ts
 import { NextResponse } from "next/server";
-import {
-  listNotificationsForToday,
-} from "../../../services/notificationService";
+import { listNotificationsForToday } from "../../../services/notificationService";
 import { sendTelegramMessage } from "@/app/services/telegramService";
 import { fetchWorkers } from "@/app/services/publicPoolService";
 
-const BTC_ADDRESS = "bc1qt20zwyvgysgtkl2j66mslnut7nxqpzhjhxkqxl";
+// Summary:
+// This enables custom daily summary notifications through Telegram,
+// providing an overview of website statuses and miner statistics.
+// Will be sent once a day via a scheduled job.
+// Currently, relatively simple and static, could be enhanced with user settings later.
+
+const BTC_ADDRESS = process.env.BTC_ADDRESS || "";
 
 export async function GET() {
   try {
     const todayNotifs = listNotificationsForToday();
 
-    const websiteNotifs = todayNotifs.filter((n) => n.type === "website");  
+    const websiteNotifs = todayNotifs.filter((n) => n.type === "website");
     const websiteOutages = websiteNotifs.filter(
       (n) => n.severity === "error"
     ).length;
 
-    // Webseiten-Status sehr simpel:
-    const websitesOk = websiteOutages === 0 ? "Ja ✅" : "Teilweise ⚠️";
+    // Website Status very simple:
+    const websitesOk = websiteOutages === 0 ? "Yes ✅" : "Partly ⚠️";
 
-    // Miner-Daten von Public Pool
+    // Miner Data from Public Pool
     const workers = await fetchWorkers(BTC_ADDRESS);
     const bestDifficulty = workers.reduce(
       (max, w) => (w.bestDifficulty > max ? w.bestDifficulty : max),
@@ -35,14 +39,14 @@ export async function GET() {
     const lines: string[] = [
       `*PersoDash Daily Summary* – ${dateStr}`,
       "",
-      `🌐 Webseiten online: ${websitesOk}`,
-      `   - Ausfälle heute: ${websiteOutages}`,
+      `🌐 Websites online: ${websitesOk}`,
+      `   - Outages today: ${websiteOutages}`,
       "",
       `⛏️ Miner:`,
-      `   - Anzahl Worker: ${workerCount}`,
-      `   - Beste Difficulty: ${bestDifficulty.toFixed(2)}`,
+      `   - Worker count: ${workerCount}`,
+      `   - Best Difficulty: ${bestDifficulty.toFixed(2)}`,
       "",
-      `🔔 Notifications heute: ${todayNotifs.length}`,
+      `🔔 Notifications today: ${todayNotifs.length}`,
     ];
 
     await sendTelegramMessage(lines.join("\n"));

@@ -15,28 +15,7 @@ import {
   Link,
   Spinner,
 } from "@heroui/react";
-
-type WebsiteStatus = "online" | "offline" | "building" | "unknown";
-
-type Website = {
-  id: string;
-  name: string;
-  url: string | null;
-  status: WebsiteStatus;
-  lastDeploy: string | null;
-  projectId: string;
-  domains?: string[];
-};
-
-const statusColorMap: Record<
-  WebsiteStatus,
-  "success" | "danger" | "warning" | "default"
-> = {
-  online: "success",
-  offline: "danger",
-  building: "warning",
-  unknown: "default",
-};
+import { statusColorMap, Website } from "@/types/websites";
 
 const formatDateTime = (value: string | null) => {
   if (!value) return "–";
@@ -68,7 +47,7 @@ export default function WebsitesPage() {
       } catch (e) {
         console.error(e);
         setError(
-          "Konnte Daten von der Vercel API nicht laden. Prüfe Token & Team ID."
+          "Data fetching error from Vercel API. Please check token & team ID."
         );
       } finally {
         setLoading(false);
@@ -97,77 +76,70 @@ export default function WebsitesPage() {
               <TableHeader>
                 <TableColumn>Name</TableColumn>
                 <TableColumn>Domains</TableColumn>
-                <TableColumn>URL (letzter Deploy)</TableColumn>
-                <TableColumn>Letzter Deploy</TableColumn>
-                <TableColumn>Projekt-ID</TableColumn>
+                <TableColumn>URL (last deploy)</TableColumn>
+                <TableColumn>Last Deploy</TableColumn>
+                <TableColumn>Project ID</TableColumn>
                 <TableColumn>Status</TableColumn>
               </TableHeader>
               <TableBody emptyContent={"Keine Websites gefunden."}>
                 {websites.map((site) => (
                   <TableRow key={site.id}>
-                    <TableCell className="font-medium">
-                      {site.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{site.name}</TableCell>
 
                     {/* Domains */}
                     <TableCell>
                       {site.domains && site.domains.length > 0 ? (
                         <div className="flex flex-col gap-0.5">
                           {site.domains.map((d) => (
-                            <span
-                              key={d}
-                              className="text-xs font-mono"
-                            >
+                            <span key={d} className="text-xs font-mono">
                               {d}
                             </span>
                           ))}
                         </div>
                       ) : (
                         <span className="text-xs text-default-500">
-                          Keine Domains
+                          No domains
                         </span>
                       )}
                     </TableCell>
 
                     {/* Status */}
 
-                    {/* URL (aus letztem Deployment) */}
+                    {/* URL (last deploy) */}
                     <TableCell>
                       {site.url ? (
                         <Link
-                        href={site.url}
-                        isExternal
-                        className="text-sm"
-                        underline="hover"
+                          href={site.url}
+                          isExternal
+                          className="text-sm"
+                          underline="hover"
                         >
                           {site.url}
                         </Link>
                       ) : (
                         <span className="text-xs text-default-500">
-                          Kein Deployment
+                          No deployment
                         </span>
                       )}
                     </TableCell>
 
                     {/* Last Deploy */}
-                    <TableCell>
-                      {formatDateTime(site.lastDeploy)}
-                    </TableCell>
+                    <TableCell>{formatDateTime(site.lastDeploy)}</TableCell>
 
                     {/* Project ID */}
                     <TableCell className="text-xs font-mono">
                       {site.projectId}
                     </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="sm"
-                            variant="flat"
-                            color={statusColorMap[site.status]}
-                            className="capitalize"
-                          >
-                            {site.status}
-                          </Chip>
-                        </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color={statusColorMap[site.status]}
+                        className="capitalize"
+                      >
+                        {site.status}
+                      </Chip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

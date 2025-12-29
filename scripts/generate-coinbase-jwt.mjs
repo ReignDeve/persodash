@@ -5,13 +5,19 @@ import { generateJwt } from "@coinbase/cdp-sdk/auth";
 dotenv.config({ path: ".env.local" });
 
 async function main() {
-  console.log("ENV:", process.env.COINBASE_API_KEY_NAME, process.env.COINBASE_API_KEY_SECRET); // debug
+  console.log(
+    "ENV:",
+    process.env.COINBASE_API_KEY_NAME,
+    process.env.COINBASE_API_KEY_SECRET
+  ); // debug
 
   const apiKeyId = process.env.COINBASE_API_KEY_NAME;
   const apiKeySecret = process.env.COINBASE_API_KEY_SECRET;
 
   if (!apiKeyId || !apiKeySecret) {
-    console.error("Bitte COINBASE_API_KEY_NAME und COINBASE_API_KEY_SECRET in .env.local setzen");
+    console.error(
+      "Please set COINBASE_API_KEY_NAME and COINBASE_API_KEY_SECRET in your .env.local file."
+    );
     process.exit(1);
   }
 

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-const MORALIS_SOLANA_BASE =
-  "https://solana-gateway.moralis.io/account/mainnet";
+const MORALIS_SOLANA_BASE = "https://solana-gateway.moralis.io/account/mainnet";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -34,7 +33,7 @@ export async function GET(req: Request) {
       }
     );
 
-    // 👉 HIER: echten Fehler loggen, nicht nur generisch
+    // log errors from Moralis
     if (!res.ok) {
       const text = await res.text();
       console.error("Moralis portfolio error:", res.status, text);
@@ -45,7 +44,7 @@ export async function GET(req: Request) {
     }
 
     const data = await res.json();
-    // Struktur laut Doku: nativeBalance + tokens[] etc.
+    // structure based on docs: nativeBalance + tokens[] etc.
 
     const tokens = (data.tokens ?? []).map((t: any) => {
       const rawBal = Number(t.balance ?? 0);

@@ -1,11 +1,9 @@
-// app/(dashboard)/layout.tsx
 "use client";
 
 import React from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "../components/sidebar";
 import Navbar from "../components/navbar";
-
 
 export default function DashboardLayout({
   children,
@@ -14,7 +12,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
 
-  // dein aktives Item ableiten
+  // TODO: improve this logic
   let active: "dashboard" | "miner" | "websites" | "wallets" | "notifications" =
     "dashboard";
 

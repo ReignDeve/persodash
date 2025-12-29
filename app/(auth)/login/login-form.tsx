@@ -2,13 +2,7 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Input,
-  Button,
-} from "@heroui/react";
+import { Card, CardHeader, CardBody, Input, Button } from "@heroui/react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -55,7 +49,7 @@ export default function LoginForm() {
         <CardHeader className="flex flex-col items-center gap-1">
           <h1 className="text-xl font-semibold">PersoDash Login</h1>
           <p className="text-xs text-default-500">
-            Bitte melde dich an, um dein Dashboard zu sehen.
+            Please enter your credentials to log in.
           </p>
         </CardHeader>
         <CardBody>
@@ -78,9 +72,7 @@ export default function LoginForm() {
               required
             />
 
-            {error && (
-              <p className="text-xs text-danger mt-1">{error}</p>
-            )}
+            {error && <p className="text-xs text-danger mt-1">{error}</p>}
 
             <Button
               type="submit"

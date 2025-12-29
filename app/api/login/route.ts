@@ -14,15 +14,12 @@ export async function POST(req: Request) {
   }
 
   if (username !== ENV_USER || password !== ENV_PASS) {
-    // falsche Logins nicht zu präzise melden
-    return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: 401 }
-    );
+    // wrong logins should not be too specific
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
   // Simple Session-Cookie
-  // Hinweis: Für persönliche Nutzung ok. Für maximale Sicherheit → signierte Tokens / NextAuth.
+  // Note: For personal use ok. For maximum security → signed tokens / NextAuth. => next versions should implement that
   const res = NextResponse.json({ ok: true });
 
   res.headers.append(
@@ -32,7 +29,7 @@ export async function POST(req: Request) {
       `Path=/`,
       `HttpOnly`,
       `SameSite=Lax`,
-      `Max-Age=${60 * 60 * 24 * 7}`, // 7 Tage
+      `Max-Age=${60 * 60 * 24 * 7}`, // 7 days
     ]
       .filter(Boolean)
       .join("; ")

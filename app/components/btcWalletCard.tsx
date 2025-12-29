@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -26,16 +26,13 @@ export default function BtcWalletCard({
   address,
   title = "BTC Wallet",
 }: BtcWalletCardProps) {
-  const [balance, setBalance] = React.useState<BtcBalanceResponse | null>(
-    null,
-  );
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [balance, setBalance] = useState<BtcBalanceResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const shortAddress =
-    address && `${address.slice(0, 6)}…${address.slice(-6)}`;
+  const shortAddress = address && `${address.slice(0, 6)}…${address.slice(-6)}`;
 
-  const loadBalance = React.useCallback(async () => {
+  const loadBalance = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -89,16 +86,12 @@ export default function BtcWalletCard({
           <p className="text-sm font-mono">{shortAddress}</p>
         </div>
 
-        {error && (
-          <p className="text-xs text-danger-500">{error}</p>
-        )}
+        {error && <p className="text-xs text-danger-500">{error}</p>}
 
         {!error && (
           <>
             <div className="flex flex-col">
-              <span className="text-xs text-default-500">
-                BTC-Balance
-              </span>
+              <span className="text-xs text-default-500">BTC-Balance</span>
               <span className="text-xl font-semibold">
                 {balance ? balance.btc.toFixed(8) : "--"} BTC
               </span>

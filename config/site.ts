@@ -1,3 +1,4 @@
+//TODO: update or delete this file
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {

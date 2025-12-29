@@ -10,7 +10,9 @@ import {
   Avatar,
 } from "@heroui/react";
 
-
+// TODO
+// Currently this navbar is generic and from Hero UI.
+// It should be customized to fit the app's branding and navigation needs.
 
 export default function App() {
   return (

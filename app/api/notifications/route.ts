@@ -3,19 +3,9 @@ import { NextResponse } from "next/server";
 import {
   addNotification,
   listNotifications,
-  Notification,
-  NotificationType,
-  NotificationSeverity,
 } from "../../services/notificationService";
 import { sendTelegramMessage } from "@/app/services/telegramService";
-
-type CreateNotificationBody = {
-  type: NotificationType;
-  source: string;
-  severity: NotificationSeverity;
-  title: string;
-  message: string;
-};
+import { CreateNotificationBody } from "@/types/notifications";
 
 export async function GET() {
   const items = listNotifications();
@@ -25,11 +15,14 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = (await req.json()) as Partial<CreateNotificationBody>;
 
-  if (!body.type || !body.source || !body.severity || !body.title || !body.message) {
-    return NextResponse.json(
-      { error: "Missing fields" },
-      { status: 400 }
-    );
+  if (
+    !body.type ||
+    !body.source ||
+    !body.severity ||
+    !body.title ||
+    !body.message
+  ) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
   const notification = addNotification({
@@ -44,13 +37,13 @@ export async function POST(req: Request) {
   const text = [
     `*${notification.title}*`,
     "",
-    `Typ: ${notification.type}`,
-    `Quelle: ${notification.source}`,
+    `Type: ${notification.type}`,
+    `Source: ${notification.source}`,
     `Level: ${notification.severity.toUpperCase()}`,
     "",
     notification.message,
     "",
-    `Zeit: ${new Date(notification.createdAt).toLocaleString("de-DE")}`,
+    `Time: ${new Date(notification.createdAt).toLocaleString("de-DE")}`,
   ].join("\n");
 
   await sendTelegramMessage(text);

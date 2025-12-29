@@ -20,10 +20,15 @@ const normalize = (data: any): PublicPoolWorker[] => {
   }));
 };
 
-export async function fetchWorkers(address: string): Promise<PublicPoolWorker[]> {
-  const res = await fetch(`https://public-pool.io:40557/api/client/${address}`, {
-    cache: "no-store",
-  });
+export async function fetchWorkers(
+  address: string
+): Promise<PublicPoolWorker[]> {
+  const res = await fetch(
+    `https://public-pool.io:40557/api/client/${address}`,
+    {
+      cache: "no-store",
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch worker data from Public Pool");
@@ -55,14 +60,14 @@ async function createMinerNotification(opts: {
       }),
     });
   } catch (e) {
-    // im Zweifel nur loggen, nicht noch mehr crashen
+    // only logging, do not crash further
     console.error("Failed to create miner notification", e);
   }
 }
 
 /**
- * Wrapper: holt Worker + löst ggf. Notifications aus.
- * Verwende diese Funktion in der UI, wenn du Alerts willst.
+ * Wrapper: fetches workers + triggers notifications if needed.
+ * Use this function in the UI if you want alerts.
  */
 export async function fetchWorkersWithAlerts(
   address: string
@@ -70,12 +75,12 @@ export async function fetchWorkersWithAlerts(
   try {
     const workers = await fetchWorkers(address);
 
-    // Beispiel-Regel: Worker seit >10 Minuten nicht gesehen ODER Hashrate 0
+    // Example rule: Worker offline since >10 minutes OR Hashrate 0
     const now = Date.now();
     const inactive = workers.filter((w) => {
       const lastSeen = new Date(w.lastSeen).getTime();
       const minutesSince = (now - lastSeen) / 1000 / 60;
-      return minutesSince > 10 || w.hashRate <= 400000.00;
+      return minutesSince > 10 || w.hashRate <= 400000.0;
     });
 
     for (const w of inactive) {
@@ -90,7 +95,8 @@ export async function fetchWorkersWithAlerts(
 
     return workers;
   } catch (error) {
-    // Netz-/API-Fehler → System-Notification
+    // network/API error → system notification
+    // only log once per error occurrence
     await createMinerNotification({
       address,
       title: "Error while fetching miner data",

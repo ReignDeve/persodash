@@ -1,19 +1,28 @@
 "use client";
 
 import React from "react";
-import {Button} from "@heroui/button";
+import { Button } from "@heroui/button";
 import {
   HomeIcon,
   ChartBarIcon,
   ComputerDesktopIcon,
   WalletIcon,
-  BellIcon
+  BellIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-type SidebarItemKey = "dashboard" | "miner" | "websites" | "wallets" | "notifications";
+//TODO: create a type file for this file
+
+type SidebarItemKey =
+  | "dashboard"
+  | "miner"
+  | "websites"
+  | "wallets"
+  | "finances"
+  | "notifications";
 
 interface SidebarProps {
   /** Welches Item ist aktuell aktiv? */
@@ -22,16 +31,37 @@ interface SidebarProps {
   onChange?: (key: SidebarItemKey) => void;
 }
 
-const items: {key: SidebarItemKey; label: string; href: string; icon: React.ComponentType<{className?: string}>}[] = [
-  {key: "dashboard", label: "Dashboard", href: "/", icon: HomeIcon},
-  {key: "miner", label: "Miner", href: "/miner", icon: ChartBarIcon},
-  {key: "websites", label: "Websites", href: "/websites", icon: ComputerDesktopIcon},
+const items: {
+  key: SidebarItemKey;
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}[] = [
+  { key: "dashboard", label: "Dashboard", href: "/", icon: HomeIcon },
+  { key: "miner", label: "Miner", href: "/miner", icon: ChartBarIcon },
+  {
+    key: "websites",
+    label: "Websites",
+    href: "/websites",
+    icon: ComputerDesktopIcon,
+  },
   { key: "wallets", label: "Wallets", href: "/wallets", icon: WalletIcon },
-  { key: "notifications", label: "Notifications", href: "/notifications", icon: BellIcon }
+  {
+    key: "finances",
+    label: "Finances",
+    href: "/finances",
+    icon: CurrencyDollarIcon,
+  },
+  {
+    key: "notifications",
+    label: "Notifications",
+    href: "/notifications",
+    icon: BellIcon,
+  },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({activeItem, onChange}) => {
-    const pathname = usePathname();
+export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onChange }) => {
+  const pathname = usePathname();
   return (
     <aside className="w-56 h-screen bg-content1 border-r border-default-100 flex flex-col py-4 px-2 gap-2">
       <div className="px-3 pb-4 items-center flex flex-col">
