@@ -1,35 +1,29 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
-import React from "react";
-import { usePathname } from "next/navigation";
-import { Sidebar } from "../components/sidebar";
-import Navbar from "../components/navbar";
+import { AppShell } from "@/components/shell/app-shell";
+import { SIDEBAR_COOKIE } from "@/components/shell/constants";
+import { DatabaseUnavailable } from "@/components/shell/database-unavailable";
+import { getCurrentUser, type CurrentUser } from "@/lib/auth/session";
+import { isDatabaseUnavailable } from "@/lib/db-errors";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  // Real session validation (the proxy only checks that a cookie exists).
+  let user: CurrentUser | null;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    if (isDatabaseUnavailable(error)) return <DatabaseUnavailable />;
+    throw error;
+  }
+  if (!user) redirect("/login");
 
-  // TODO: improve this logic
-  let active: "dashboard" | "miner" | "websites" | "wallets" | "notifications" =
-    "dashboard";
-
-  if (pathname.startsWith("/miner")) active = "miner";
-  else if (pathname.startsWith("/websites")) active = "websites";
-  else if (pathname.startsWith("/wallets")) active = "wallets";
-  else if (pathname.startsWith("/notifications")) active = "notifications";
+  const collapsed = (await cookies()).get(SIDEBAR_COOKIE)?.value === "1";
 
   return (
-    <div className="relative flex h-screen">
-      <Sidebar activeItem={active} />
-      <div className="flex flex-col flex-1">
-        <Navbar />
-        <main className="container mx-auto max-w-full pt-6 px-6 flex-grow">
-          {children}
-        </main>
-      </div>
-    </div>
+    <AppShell username={user.username} initialCollapsed={collapsed}>
+      {children}
+    </AppShell>
   );
 }

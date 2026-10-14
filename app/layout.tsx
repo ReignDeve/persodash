@@ -1,51 +1,42 @@
-import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
-import '@coinbase/onchainkit/styles.css';
-import clsx from "clsx";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import type { ReactNode } from "react";
 
-import { Providers } from "./providers";
+import { Providers } from "@/app/providers";
+import { ServiceWorker } from "@/components/shell/service-worker";
+import { cn } from "@/lib/utils";
 
-import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
-import { Sidebar } from "./components/sidebar";
-import Navbar from "./components/navbar";
+import "./globals.css";
+
+// Self-hosted at build time by next/font – no runtime request to Google.
+const sans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
+  title: { default: "PersoDash", template: "%s · PersoDash" },
+  description: "Personal command center",
+  applicationName: "PersoDash",
+  appleWebApp: { capable: true, title: "PersoDash", statusBarStyle: "black-translucent" },
+  robots: { index: false, follow: false },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0c0d" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f6f5" },
   ],
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html suppressHydrationWarning lang="en">
-      <head />
-      <body
-        className={clsx(
-          "min-h-screen text-foreground bg-[#f5f5f5] font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-        {children}
-</Providers>
+    <html lang="en" suppressHydrationWarning className={cn(sans.variable, mono.variable)}>
+      <body>
+        <Providers>{children}</Providers>
+        <ServiceWorker />
       </body>
     </html>
   );

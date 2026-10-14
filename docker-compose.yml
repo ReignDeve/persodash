@@ -1,0 +1,75 @@
+# PersoDash on a single VPS: PostgreSQL + app (+ optional Caddy for HTTPS).
+#
+#   cp .env.example .env        # fill in values, set POSTGRES_PASSWORD
+#   docker compose up -d --build
+#   docker compose --profile proxy up -d   # also start Caddy (automatic HTTPS)
+#
+# The database is only reachable inside the compose network.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: persodash
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: persodash
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U persodash -d persodash"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://persodash:${POSTGRES_PASSWORD}@db:5432/persodash
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://persodash:${POSTGRES_PASSWORD}@db:5432/persodash
+      TZ: ${TZ:-Europe/Berlin}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # Bound to localhost only – expose it through Caddy or your existing reverse proxy.
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["proxy"]
+    restart: unless-stopped
+    environment:
+      PERSODASH_DOMAIN: ${PERSODASH_DOMAIN:?set PERSODASH_DOMAIN to use the proxy profile}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

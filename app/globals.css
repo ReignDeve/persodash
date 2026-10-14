@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ * PersoDash design tokens
+ *
+ * Depth comes from luminance, not shadows: every layer is a step brighter
+ * than the one beneath it. Colour is reserved for information (status) and a
+ * single, rarely used ice-blue accent for focus and selection.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* Layers (light theme – secondary) */
+  --bg: #f6f6f5;
+  --bg-sidebar: #efefee;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-overlay: #ffffff;
+  --hover: rgb(0 0 0 / 0.04);
+  --selected: rgb(0 0 0 / 0.07);
+
+  --line: rgb(0 0 0 / 0.08);
+  --line-strong: rgb(0 0 0 / 0.14);
+
+  --fg: #17181a;
+  --fg-muted: #5c5e63;
+  --fg-subtle: #85878c;
+  --fg-faint: #b4b5b8;
+  --fg-inverse: #fafaf9;
+
+  --accent: #3d6f8f;
+  --accent-soft: rgb(61 111 143 / 0.12);
+
+  --ok: #2f8a5f;
+  --warn: #a87a1c;
+  --err: #c2463b;
+  --info: #3d6f8f;
+
+  /* Two-series chart palette, validated for CVD separation (see dataviz check). */
+  --chart-1: #2f5f80;
+  --chart-2: #9a9ca1;
+  --chart-grid: rgb(0 0 0 / 0.06);
+
+  --shadow-overlay: 0 8px 24px -8px rgb(0 0 0 / 0.18), 0 0 0 1px var(--line);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b0c0d;
+  --bg-sidebar: #090a0b;
+  --surface: #101113;
+  --surface-raised: #151618;
+  --surface-overlay: #1a1b1e;
+  --hover: rgb(255 255 255 / 0.035);
+  --selected: rgb(255 255 255 / 0.065);
+
+  --line: rgb(255 255 255 / 0.065);
+  --line-strong: rgb(255 255 255 / 0.11);
+
+  --fg: #e7e7e5;
+  --fg-muted: #9b9c9f;
+  --fg-subtle: #6c6d71;
+  --fg-faint: #45464a;
+  --fg-inverse: #0b0c0d;
+
+  --accent: #9dbdd1;
+  --accent-soft: rgb(157 189 209 / 0.1);
+
+  --ok: #6dbb92;
+  --warn: #d4ae5a;
+  --err: #e2766b;
+  --info: #9dbdd1;
+
+  --chart-1: #9dbdd1;
+  --chart-2: #666b72;
+  --chart-grid: rgb(255 255 255 / 0.05);
+
+  --shadow-overlay: 0 12px 32px -12px rgb(0 0 0 / 0.7), 0 0 0 1px var(--line-strong);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-sidebar: var(--bg-sidebar);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-overlay: var(--surface-overlay);
+  --color-hover: var(--hover);
+  --color-selected: var(--selected);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+  --color-faint: var(--fg-faint);
+  --color-inverse: var(--fg-inverse);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-err: var(--err);
+  --color-info: var(--info);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Type scale – desktop software, not marketing */
+  --text-2xs: 0.6875rem; /* 11px – labels, metadata */
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem; /* 12px */
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.8125rem; /* 13px – body */
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem; /* 14px */
+  --text-base--line-height: 1.375rem;
+  --text-lg: 1rem; /* 16px – section titles */
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.25rem; /* 20px – page titles */
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.625rem; /* 26px – key figures */
+  --text-2xl--line-height: 2rem;
+
+  --tracking-label: 0.14em;
+  --tracking-wordmark: 0.38em;
+
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-fade-in: fade-in 140ms var(--ease-out);
+  --animate-fade-out: fade-out 120ms var(--ease-out);
+  --animate-pop-in: pop-in 140ms var(--ease-out);
+  --animate-sheet-in-right: sheet-in-right 180ms var(--ease-out);
+  --animate-sheet-in-bottom: sheet-in-bottom 180ms var(--ease-out);
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(2px) scale(0.985); }
+  }
+  @keyframes sheet-in-right {
+    from { transform: translateX(16px); opacity: 0; }
+  }
+  @keyframes sheet-in-bottom {
+    from { transform: translateY(24px); opacity: 0; }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+}
+
+/* Layout constants shared by shell components */
+:root {
+  --sidebar-width: 232px;
+  --sidebar-width-collapsed: 52px;
+  --topbar-height: 48px;
+  --mobile-nav-height: 56px;
+  --content-max: 1360px;
+
+  --z-sticky: 20;
+  --z-sidebar: 30;
+  --z-overlay: 50;
+  --z-toast: 60;
+  --z-tooltip: 70;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--fg);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  * {
+    border-color: var(--line);
+  }
+
+  /* Thin, quiet scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.45;
+    cursor: pointer;
+  }
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Small uppercase metadata label, used sparingly */
+  .label {
+    font-size: var(--text-2xs);
+    line-height: var(--text-2xs--line-height);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

@@ -1,0 +1,6 @@
+# Automatic HTTPS via Let's Encrypt. Point an A/AAAA record for
+# $PERSODASH_DOMAIN at the VPS before starting the proxy profile.
+{$PERSODASH_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000
+}

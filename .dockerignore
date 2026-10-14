@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.legacy
+.env
+.env*.local
+*.db
+app/generated
+README.md

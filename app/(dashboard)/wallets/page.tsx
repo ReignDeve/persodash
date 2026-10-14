@@ -1,19 +1,9 @@
-"use client";
+import type { Metadata } from "next";
 
-import PhantomWalletCard from "../../components/PhantomWalletCard";
-import BtcWalletCard from "../../components/btcWalletCard";
-import CoinbaseCard from "../../components/coinbaseCard";
+import { WalletsView } from "@/features/wallets/wallets-view";
 
-const BTC_ADDRESS = process.env.BTC_ADDRESS || "";
+export const metadata: Metadata = { title: "Wallets" };
 
 export default function WalletsPage() {
-  return (
-    <div className="flex flex-row gap-6 w-full">
-      <PhantomWalletCard />
-      <BtcWalletCard address={BTC_ADDRESS} title="BTC Mining Wallet" />
-      <CoinbaseCard />
-      {/* TODO */}
-      {/* Add the option to add and save wallets directly in the dashboard. */}
-    </div>
-  );
+  return <WalletsView />;
 }

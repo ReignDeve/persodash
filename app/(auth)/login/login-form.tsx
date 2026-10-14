@@ -1,90 +1,79 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardBody, Input, Button } from "@heroui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
 
-export default function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+import { LogoMark, Wordmark } from "@/components/shell/logo";
+import { Button } from "@/components/ui/button";
+import { Field, fieldA11y } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api/client";
+import { loginSchema, type LoginValues } from "@/lib/schemas/settings";
 
-  const from = searchParams.get("from") || "/";
+/** Only allow same-site relative redirects after login. */
+function safeRedirect(from: string | null) {
+  return from && from.startsWith("/") && !from.startsWith("//") ? from : "/";
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+export function LoginForm() {
+  const params = useSearchParams();
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { username: "", password: "" },
+  });
+  const { errors } = form.formState;
 
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data?.error || "Login fehlgeschlagen");
-        return;
-      }
-
-      router.push(from || "/");
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-      setError("Netzwerkfehler beim Login");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const login = useMutation({
+    mutationFn: (values: LoginValues) => api("/api/auth/login", { method: "POST", body: values }),
+    // Full navigation so the server layout picks up the new session cookie.
+    onSuccess: () => window.location.assign(safeRedirect(params.get("from"))),
+    onError: () => form.setValue("password", ""),
+    meta: { silent: true },
+  });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="flex flex-col items-center gap-1">
-          <h1 className="text-xl font-semibold">PersoDash Login</h1>
-          <p className="text-xs text-default-500">
-            Please enter your credentials to log in.
-          </p>
-        </CardHeader>
-        <CardBody>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4">
+      <div className="w-full max-w-[320px]">
+        <div className="mb-10 flex flex-col items-center gap-4">
+          <LogoMark className="size-6 text-fg" />
+          <Wordmark className="text-xs" />
+        </div>
+
+        <form onSubmit={form.handleSubmit((v) => login.mutate(v))} className="flex flex-col gap-4" noValidate>
+          <Field label="Username" htmlFor="username" error={errors.username?.message}>
             <Input
-              label="Benutzername"
-              variant="bordered"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
-              required
+              autoFocus
+              autoCapitalize="none"
+              spellCheck={false}
+              {...fieldA11y("username", errors.username?.message)}
+              {...form.register("username")}
             />
+          </Field>
+          <Field label="Password" htmlFor="password" error={errors.password?.message}>
             <Input
-              label="Passwort"
-              variant="bordered"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              required
+              {...fieldA11y("password", errors.password?.message)}
+              {...form.register("password")}
             />
+          </Field>
 
-            {error && <p className="text-xs text-danger mt-1">{error}</p>}
+          {login.error ? (
+            <p role="alert" className="text-xs text-err">
+              {login.error.message}
+            </p>
+          ) : null}
 
-            <Button
-              type="submit"
-              color="primary"
-              isLoading={loading}
-              className="mt-2"
-            >
-              Login
-            </Button>
-          </form>
-        </CardBody>
-      </Card>
+          <Button type="submit" variant="primary" className="mt-1 w-full" disabled={login.isPending}>
+            {login.isPending ? "Signing in…" : "Sign in"}
+          </Button>
+        </form>
+
+        <p className="mt-10 text-center text-2xs tracking-[0.14em] text-faint uppercase">Private instance</p>
+      </div>
     </div>
   );
 }

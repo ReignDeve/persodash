@@ -1,52 +1,22 @@
-// app/api/notifications/route.ts
-import { NextResponse } from "next/server";
+import { authed, parseBody, parseQuery } from "@/lib/api/handler";
 import {
-  addNotification,
+  notificationBulkSchema,
+  notificationFilterSchema,
+  notificationInputSchema,
+} from "@/lib/schemas/notifications";
+import {
+  clearRead,
   listNotifications,
-} from "../../services/notificationService";
-import { sendTelegramMessage } from "@/app/services/telegramService";
-import { CreateNotificationBody } from "@/types/notifications";
+  markAllRead,
+  notify,
+} from "@/server/services/notifications";
 
-export async function GET() {
-  const items = listNotifications();
-  return NextResponse.json({ data: items });
-}
+export const GET = authed(async (req) => listNotifications(parseQuery(req, notificationFilterSchema)));
 
-export async function POST(req: Request) {
-  const body = (await req.json()) as Partial<CreateNotificationBody>;
+/** Lets future integrations (LUCY, automations, scripts) raise notifications. */
+export const POST = authed(async (req) => notify(await parseBody(req, notificationInputSchema)));
 
-  if (
-    !body.type ||
-    !body.source ||
-    !body.severity ||
-    !body.title ||
-    !body.message
-  ) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-  }
-
-  const notification = addNotification({
-    type: body.type,
-    source: body.source,
-    severity: body.severity,
-    title: body.title,
-    message: body.message,
-  });
-
-  // Telegram Push
-  const text = [
-    `*${notification.title}*`,
-    "",
-    `Type: ${notification.type}`,
-    `Source: ${notification.source}`,
-    `Level: ${notification.severity.toUpperCase()}`,
-    "",
-    notification.message,
-    "",
-    `Time: ${new Date(notification.createdAt).toLocaleString("de-DE")}`,
-  ].join("\n");
-
-  await sendTelegramMessage(text);
-
-  return NextResponse.json({ data: notification }, { status: 201 });
-}
+export const PATCH = authed(async (req) => {
+  const { action } = await parseBody(req, notificationBulkSchema);
+  return action === "read-all" ? markAllRead() : clearRead();
+});
